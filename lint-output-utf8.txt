@@ -1,0 +1,4 @@
+﻿
+> task-board-system@0.0.0 lint
+> eslint .
+

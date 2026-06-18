@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+/* 1. Light Mode Colors (White background par gehra black text) */
+:root, :root[data-theme='light'] {
+  --color-canvas: #f1f5f9;
+  --color-primary: #0f172a;       /* Gehra kala rang titles ke liye */
+  --color-secondary: #334155;     /* Dark slate description ke liye */
+  --bg-card: #ffffff;             /* Column panel ka background safed */
+  --bg-card-item: #f8fafc;        /* Task card ka background clean light grey */
+  --border-card: #cbd5e1;         /* Border thodi dark taaki columns saaf dikhein */
+}
+
+/* 2. Dark Mode Colors (Navy blue background par safed text) */
+:root[data-theme='dark'] {
+  --color-canvas: #0f172a;
+  --color-primary: #f8fafc;
+  --color-secondary: #94a3b8;
+  --bg-card: #1e293b;
+  --bg-card-item: #0f172a;
+  --border-card: #334155;
+}
+
+/* 3. Global Document Layout Settings */
+html, body, #root {
+  background-color: var(--color-canvas) !important;
+  color: var(--color-primary) !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* 4. Strict CSS Variable Helpers (Yeh text ko bright light me bhi dark rakhenge) */
+.bg-card { 
+  background-color: var(--bg-card) !important; 
+}
+.bg-card-item { 
+  background-color: var(--bg-card-item) !important; 
+}
+.border-card { 
+  border-color: var(--border-card) !important; 
+}
+
+/* Isse title ka rang automatic sahi hoga */
+.text-primary, h1, h2, h3, h4 { 
+  color: var(--color-primary) !important; 
+}
+
+/* Isse description aur baaki details bilkul saaf gehre rang me dikhengi */
+.text-secondary, p, span { 
+  color: var(--color-secondary) !important; 
+}
