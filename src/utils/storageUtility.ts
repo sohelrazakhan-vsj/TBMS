@@ -1,24 +1,41 @@
 import type { Task } from '../types/index';
 
-// 1. Storage se data load karne ka function
+function isTaskArray(data: any): boolean {
+  if (!Array.isArray(data)) return false;
+  return data.every(item => item && typeof item === 'object' && 'title' in item);
+}
+
+export const STORAGE_KEY = 'tasks_board_data';
+
 export const loadTasksFromStorage = (): Task[] => {
   try {
-    const serializedTasks = localStorage.getItem('tasks_board_data');
+    const serializedTasks = localStorage.getItem(STORAGE_KEY);
     if (serializedTasks === null) {
       return [];
     }
-    return JSON.parse(serializedTasks) as Task[];
+    
+    const parsedData = JSON.parse(serializedTasks);
+
+    if (isTaskArray(parsedData)) {
+      return parsedData;
+    } else {
+      console.error('Storage data corrupted! Safety fallback triggered.');
+      return []; 
+    }
   } catch (error) {
     console.error('Could not load tasks from localStorage', error);
     return [];
   }
 };
 
-// 2. Storage mein data save karne ka function
 export const saveTasksToStorage = (tasks: Task[]): void => {
   try {
+    if (!isTaskArray(tasks)) {
+      console.error('Refusing to save invalid task structure to storage');
+      return;
+    }
     const serializedTasks = JSON.stringify(tasks);
-    localStorage.setItem('tasks_board_data', serializedTasks);
+    localStorage.setItem(STORAGE_KEY, serializedTasks);
   } catch (error) {
     console.error('Could not save tasks to localStorage', error);
   }
@@ -28,7 +45,15 @@ export const storageUtility = {
   get<T>(key: string, defaultValue: T): T {
     try {
       const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : defaultValue;
+      if (!item) return defaultValue;
+      
+      const parsed = JSON.parse(item);
+      
+      if (key === STORAGE_KEY && !isTaskArray(parsed)) {
+        return defaultValue;
+      }
+      
+      return parsed;
     } catch (error) {
       console.error(`Error reading from storage key "${key}":`, error);
       return defaultValue;

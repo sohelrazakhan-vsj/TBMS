@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTaskContext } from '../../context/TaskContext';
 import { TaskStatus } from '../../types/index';
 import { Badge } from '../ui/Badge';
@@ -10,7 +11,7 @@ interface ColumnConfig {
 }
 
 export const BoardView: React.FC = () => {
-  // context se deleteTask function ko nikaal liya
+  const navigate = useNavigate();
   const { filteredAndSortedTasks, moveTask, deleteTask, fetchTasks } = useTaskContext();
 
   const columns: ColumnConfig[] = [
@@ -71,20 +72,21 @@ export const BoardView: React.FC = () => {
                     key={task.id}
                     draggable
                     onDragStart={(e) => handleDragStart(e, task.id)}
+                    onClick={() => navigate(`/tasks/${task.id}`)}
                     className="p-4 bg-card-item border border-card rounded-lg shadow-sm hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing group relative"
                   >
                     <div className="flex items-start justify-between gap-4 mb-2">
                       <h4 className="font-semibold text-sm text-primary group-hover:text-blue-600 transition-colors pr-4">
                         {task.title}
                       </h4>
-                      {/* 🗑️ NEW DELETE BUTTON ADDED HERE */}
                       <button
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           if (window.confirm('Are you sure you want to delete this task?')) {
                             deleteTask(task.id);
                           }
                         }}
-                        className="text-gray-400 hover:text-red-500 text-xs font-bold cursor-pointer transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-950/30 absolute top-3 right-3"
+                        className="text-gray-400 hover:text-red-500 text-xs font-bold cursor-pointer transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-950/30 absolute top-3 right-3 z-10"
                         title="Delete Task"
                       >
                         ❌

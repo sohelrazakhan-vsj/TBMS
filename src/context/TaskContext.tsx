@@ -56,8 +56,13 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [addToast]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void fetchTasks();
+    let isMounted = true;
+    if (isMounted) {
+      void fetchTasks();
+    }
+    return () => {
+      isMounted = false;
+    };
   }, [fetchTasks]);
 
   const createTask = useCallback(async (input: CreateTaskInput) => {
@@ -94,17 +99,21 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [addToast]);
 
   const moveTask = useCallback(async (id: string, status: TaskStatus) => {
-    const originalTasks = [...tasks];
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status, updatedAt: new Date().toISOString() } : t)));
+    let rollbackTasks: Task[] = [];
+    
+    setTasks((prev) => {
+      rollbackTasks = [...prev]; 
+      return prev.map((t) => (t.id === id ? { ...t, status, updatedAt: new Date().toISOString() } : t));
+    });
 
     const response = await taskApi.moveTask(id, status);
     if (!response.success) {
-      setTasks(originalTasks);
+      setTasks(() => rollbackTasks); 
       addToast('error', 'Failed to move task');
       return false;
     }
     return true;
-  }, [tasks, addToast]);
+  }, [addToast]);
 
   const filteredAndSortedTasks = useMemo(() => {
     return tasks
@@ -116,7 +125,9 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
       })
       .sort((a, b) => {
         if (sortField === SortField.Priority) {
-          return priorityWeight[a.priority] - priorityWeight[b.priority];
+          return sortOrder === 'asc'
+            ? priorityWeight[a.priority] - priorityWeight[b.priority]
+            : priorityWeight[b.priority] - priorityWeight[a.priority];
         }
 
         if (sortField === SortField.Title) {

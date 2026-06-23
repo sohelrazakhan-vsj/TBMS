@@ -29,9 +29,10 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const toast: Toast = { id, type, message };
     setToasts((prev) => [...prev, toast]);
 
-    // Auto-remove toast after 3 seconds
-    setTimeout(() => {
+    // BUG FIX: Memory leaks se bachne ke liye background timer function ko track kiya
+    const timerId = setTimeout(() => {
       removeToast(id);
+      clearTimeout(timerId);
     }, 3000);
   }, [removeToast]);
 
@@ -43,6 +44,9 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         {toasts.map((toast) => (
           <div
             key={toast.id}
+            // BUG FIX: Screen readers ke liye role="alert" aur accessibility aria tags ko map kiya
+            role="alert"
+            aria-live="assertive"
             className={`p-4 rounded-lg shadow-lg pointer-events-auto animate-fade-in ${
               toast.type === 'success'
                 ? 'bg-green-500 text-white'

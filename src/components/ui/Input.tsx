@@ -5,7 +5,6 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
 }
 
-// FIX: Yahan 'export const Input' likha hai, jisse 'TaskForm.tsx' ise perfectly pehchan lega
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, className = '', id, ...props }, ref) => {
     const generatedId = React.useId();
@@ -26,9 +25,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             } ${className}`}
           {...props}
         />
+        {/* ULTRA FIX: !important inline style aur !text-red-500 dono ka combine injection */}
         {error && (
-          <p className="text-xs font-medium text-red-500">
-            {error}
+          <p 
+            className="!text-red-500 font-semibold italic mt-1 flex items-center gap-1"
+            style={{ color: '#FF3333 !important', fontStyle: 'italic !important' }}
+          >
+            <span style={{ color: '#FF3333 !important' }}>⚠️</span> {error}
           </p>
         )}
       </div>
@@ -37,3 +40,5 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 );
 
 Input.displayName = 'Input';
+
+
